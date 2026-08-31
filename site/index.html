@@ -23,11 +23,12 @@
 <meta name="twitter:title" content="OPTCG Odds — Calculateur de probabilités One Piece Card Game">
 <meta name="twitter:description" content="Quelle est ma chance d'avoir cette carte au tour 3 ? Cinq calculateurs hypergéométriques adaptés aux règles réelles de l'OPTCG.">
 
-<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-<link rel="manifest" href="/site.webmanifest">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="site.webmanifest">
 
-<link rel="stylesheet" href="/assets/styles.css">
-<script src="/assets/app.js" defer></script>
+<link rel="stylesheet" href="assets/styles.css">
+<script src="assets/cards.js" defer></script>
+<script src="assets/app.js" defer></script>
 </head>
 <body>
 
@@ -43,6 +44,7 @@
   <button data-tab="don">Coût DON!!</button>
   <button data-tab="effets">Effets supplémentaires</button>
   <button data-tab="combo">Combinaisons</button>
+  <button data-tab="cartes">Cartes</button>
 </nav>
 
 <main id="main">
@@ -366,6 +368,48 @@
     <div class="card"><h2>Graphique</h2><canvas id="combo-chart" width="900" height="220"></canvas></div>
   </section>
 
+  <!-- ============================= TAB 6 : CARTES ============================= -->
+  <section class="tab-panel" id="tab-cartes">
+    <div class="card">
+      <h2>Rechercher une carte</h2>
+      <div class="row">
+        <div class="field grow">
+          <label for="cards-q">Nom, numéro, type ou texte d'effet</label>
+          <input type="text" id="cards-q" placeholder="ex : Zoro, OP01-025, ou « Blocker »" autocomplete="off">
+        </div>
+        <div class="field">
+          <label>Langue des textes</label>
+          <div class="radio-group">
+            <label><input type="radio" name="cards-lang" value="fr" checked> Français</label>
+            <label><input type="radio" name="cards-lang" value="en"> English</label>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="cards-color">Couleur</label><select id="cards-color"></select></div>
+        <div class="field"><label for="cards-cat">Catégorie</label><select id="cards-cat"></select></div>
+        <div class="field"><label for="cards-cost">Coût</label><select id="cards-cost"></select></div>
+        <div class="field"><label for="cards-attr">Attribut</label><select id="cards-attr"></select></div>
+        <div class="field grow"><label for="cards-set">Extension</label><select id="cards-set"></select></div>
+        <div class="field"><label>&nbsp;</label><button class="btn secondary" id="cards-reset">Réinitialiser</button></div>
+      </div>
+      <div class="note" id="cards-status">Chargement de la base de cartes…</div>
+      <p class="note">
+        La recherche porte sur les deux langues : taper « Blocker » trouve aussi les cartes
+        dont le texte français dit « Bloqueur ». Les cartes parues récemment n'existent
+        pas encore en français et s'affichent alors en anglais.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Résultats</h2>
+      <div id="cards-results" class="card-grid"></div>
+      <div class="cards-more-wrap">
+        <button class="btn secondary is-hidden" id="cards-more">Voir plus de cartes</button>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <footer>
@@ -374,8 +418,9 @@
     One Piece Card Game est une marque de Bandai / Shueisha.
   </p>
   <p>
-    Données de cartes (recherche) via l'API publique
-    <a href="https://optcgapi.com" rel="noopener external">optcgapi.com</a> —
+    Données et visuels des cartes issus du site officiel
+    <a href="https://en.onepiece-cardgame.com/cardlist/" rel="noopener external">onepiece-cardgame.com</a>,
+    reproduits à des fins d'information pour les joueurs —
     code source sur
     <a href="https://github.com/AKHMerban/One-Piece-TCG-Probability-Calculator" rel="noopener external">GitHub</a>.
   </p>
