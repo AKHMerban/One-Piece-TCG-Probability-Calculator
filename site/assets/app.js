@@ -267,14 +267,34 @@ function calcDon() {
    TAB 4 : EFFETS SUPPLEMENTAIRES
    ===================================================================== */
 let effEffects = [];
+/* Cellule « supprimer la ligne », partagee par les tableaux des onglets
+   Effets et Combinaisons. La classe porte le style : aucun attribut style
+   dans le balisage, ce qui permet une CSP sans 'unsafe-inline'. */
+function makeRemoveCell(idx) {
+  const td = document.createElement("td");
+  const btn = document.createElement("button");
+  btn.className = "btn secondary btn-xs";
+  btn.dataset.idx = idx;
+  btn.textContent = "✕";
+  btn.setAttribute("aria-label", "Supprimer cette ligne");
+  td.appendChild(btn);
+  return td;
+}
+
 function refreshEffectsTable() {
   const tbody = document.querySelector("#eff-list-table tbody");
   tbody.innerHTML = "";
   effEffects.forEach((e, i) => {
     const cartes = e.valeur * e.uses;
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${e.typeLabel}</td><td>${e.valeur}</td><td>${e.uses}</td><td>${cartes}</td>
-      <td><button class="btn secondary" data-idx="${i}" style="padding:3px 8px;font-size:11px;">✕</button></td>`;
+    // textContent, jamais innerHTML : les libelles passent par le DOM sans
+    // etre reinterpretes comme du HTML.
+    [e.typeLabel, e.valeur, e.uses, cartes].forEach(v => {
+      const td = document.createElement("td");
+      td.textContent = v;
+      tr.appendChild(td);
+    });
+    tr.appendChild(makeRemoveCell(i));
     tbody.appendChild(tr);
   });
   tbody.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
@@ -341,8 +361,14 @@ function refreshComboTable() {
   tbody.innerHTML = "";
   comboCards.forEach((c, i) => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${c.nom}</td><td>${c.copies}</td><td>${c.minimum}</td>
-      <td><button class="btn secondary" data-idx="${i}" style="padding:3px 8px;font-size:11px;">✕</button></td>`;
+    // c.nom est saisi par l'utilisateur ou vient de l'API optcgapi.com :
+    // ces deux sources sont hors de notre controle, donc jamais d'innerHTML.
+    [c.nom, c.copies, c.minimum].forEach(v => {
+      const td = document.createElement("td");
+      td.textContent = v;
+      tr.appendChild(td);
+    });
+    tr.appendChild(makeRemoveCell(i));
     tbody.appendChild(tr);
   });
   tbody.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {

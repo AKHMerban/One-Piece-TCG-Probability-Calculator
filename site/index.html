@@ -56,7 +56,7 @@
         <div class="field"><label>Main de départ</label><input type="number" id="std-hand" value="5" min="0"></div>
       </div>
       <div class="row">
-        <div class="field" style="flex:1; min-width:260px;">
+        <div class="field grow">
           <label>Cartes vues (séparées par des virgules)</label>
           <input type="text" id="std-points" value="5,6,7,10,15,20">
         </div>
@@ -112,7 +112,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="field" style="flex:1; min-width:260px;">
+        <div class="field grow">
           <label id="vie-points-label">Cartes vues (séparées par des virgules)</label>
           <input type="text" id="vie-points" value="5,6,7,10,15,20">
         </div>
@@ -188,10 +188,10 @@
           <input type="number" id="don-reserve" value="1" min="0" max="9">
         </div>
       </div>
-      <div class="search-box" style="max-width:420px;">
-        <label style="font-size:12.5px; color:var(--ink-dim);">Rechercher une carte pour préremplir le coût</label>
+      <div class="search-box mw-420">
+        <label class="hint">Rechercher une carte pour préremplir le coût</label>
         <input type="text" id="don-search" placeholder="ex : Roronoa Zoro">
-        <div class="search-results" id="don-search-results" style="display:none;"></div>
+        <div class="search-results is-hidden" id="don-search-results"></div>
         <div class="search-status" id="don-search-status"></div>
       </div>
       <br>
@@ -238,7 +238,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="field" style="flex:1; min-width:260px;">
+        <div class="field grow">
           <label id="eff-points-label">Cartes vues (séparées par des virgules)</label>
           <input type="text" id="eff-points" value="5,6,7,10,15,20">
         </div>
@@ -276,8 +276,8 @@
             <option value="loot">Pioche X / Défausse X</option>
           </select>
         </div>
-        <div class="field"><label>Valeur X</label><input type="number" id="eff-valeur" value="3" min="1" max="10" style="width:70px;"></div>
-        <div class="field"><label>Utilisations</label><input type="number" id="eff-uses" value="1" min="1" max="10" style="width:70px;"></div>
+        <div class="field"><label>Valeur X</label><input type="number" id="eff-valeur" value="3" min="1" max="10" class="w-narrow"></div>
+        <div class="field"><label>Utilisations</label><input type="number" id="eff-uses" value="1" min="1" max="10" class="w-narrow"></div>
         <button class="btn" id="eff-add">Ajouter</button>
       </div>
       <div class="table-wrap">
@@ -322,7 +322,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="field" style="flex:1; min-width:260px;">
+        <div class="field grow">
           <label id="combo-points-label">Cartes vues (séparées par des virgules)</label>
           <input type="text" id="combo-points" value="5,6,7,10,15,20">
         </div>
@@ -342,14 +342,14 @@
     <div class="card">
       <h2>Cartes de la combinaison (jusqu'à 5)</h2>
       <div class="list-form">
-        <div class="field search-box" style="min-width:220px;">
+        <div class="field search-box mw-220">
           <label>Nom (optionnel)</label>
           <input type="text" id="combo-name" placeholder="ex : Roronoa Zoro">
-          <div class="search-results" id="combo-search-results" style="display:none;"></div>
+          <div class="search-results is-hidden" id="combo-search-results"></div>
           <div class="search-status" id="combo-search-status"></div>
         </div>
-        <div class="field"><label>Copies dans le deck</label><input type="number" id="combo-copies" value="4" min="1" max="4" style="width:70px;"></div>
-        <div class="field"><label>Minimum requis</label><input type="number" id="combo-min" value="1" min="1" max="4" style="width:70px;"></div>
+        <div class="field"><label>Copies dans le deck</label><input type="number" id="combo-copies" value="4" min="1" max="4" class="w-narrow"></div>
+        <div class="field"><label>Minimum requis</label><input type="number" id="combo-min" value="1" min="1" max="4" class="w-narrow"></div>
         <button class="btn" id="combo-add">Ajouter la carte</button>
       </div>
       <div class="table-wrap">
