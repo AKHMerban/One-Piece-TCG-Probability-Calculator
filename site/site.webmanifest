@@ -1,0 +1,13 @@
+{
+  "name": "OPTCG Odds — Calculateur de probabilités One Piece Card Game",
+  "short_name": "OPTCG Odds",
+  "description": "Calculateur de probabilités de pioche pour le One Piece Card Game.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0E2740",
+  "theme_color": "#0E2740",
+  "lang": "fr",
+  "icons": [
+    { "src": "/assets/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

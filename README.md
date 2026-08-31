@@ -49,11 +49,12 @@ mêmes cinq modules de calcul :
 
 | Version | Fichier | Pour qui |
 |---|---|---|
-| **Web** | `optcg-calculateur.html` | Utilisation immédiate — un double-clic, aucune installation |
+| **Web** | `site/` | Utilisation immédiate — en ligne, ou un double-clic sur `site/index.html` |
 | **Bureau** | `opctg_probabilite.py` | Environnement Python, graphiques Matplotlib |
 
-La version web est un **fichier HTML autonome** : pas de build, pas de
-dépendance, pas de CDN. Les graphiques sont dessinés en `<canvas>` natif.
+La version web est un **site statique sans étape de build** : pas de bundler,
+pas de dépendance, pas de CDN. Les graphiques sont dessinés en `<canvas>` natif,
+et le dossier `site/` se sert tel quel par n'importe quel serveur web.
 
 ## Fonctionnalités
 
@@ -71,11 +72,15 @@ dépendance, pas de CDN. Les graphiques sont dessinés en `<canvas>` natif.
 
 ### Version web — recommandée
 
+Le site est en ligne : **<https://opdeck.hokhori.be>**. Rien à installer.
+
+Pour le faire tourner en local :
+
 ```bash
 git clone https://github.com/AKHMerban/One-Piece-TCG-Probability-Calculator.git
 cd One-Piece-TCG-Probability-Calculator
-open optcg-calculateur.html      # macOS
-# xdg-open optcg-calculateur.html  (Linux)  |  start optcg-calculateur.html  (Windows)
+open site/index.html             # macOS
+# xdg-open site/index.html  (Linux)  |  start site\index.html  (Windows)
 ```
 
 Aucune installation. La recherche de carte par nom nécessite une connexion
@@ -174,7 +179,14 @@ $$P = \sum_{\substack{k_i \geq r_i}} \frac{\left(\prod_i \binom{K_i}{k_i}\right)
 
 ```
 .
-├── optcg-calculateur.html       ← version web autonome (5 onglets)
+├── site/                        ← le site web, servi tel quel (aucun build)
+│   ├── index.html               ← l'application, 5 onglets
+│   ├── 404.html
+│   ├── robots.txt · sitemap.xml · site.webmanifest
+│   └── assets/
+│       ├── styles.css           ← thème + responsive + impression
+│       ├── app.js               ← moteur de calcul et rendu des graphiques
+│       └── favicon.svg
 ├── opctg_probabilite.py         ← version bureau de référence (5 onglets)
 ├── opctg_probabilite copie.py   ← copie de travail, règle DON!! antérieure
 ├── opctg_probabiliteV.py        ← prototype : Standard + Vie du Leader

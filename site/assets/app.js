@@ -1,504 +1,3 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OPTCG Odds — Calculateur de probabilités One Piece Card Game</title>
-<style>
-  :root {
-    --bg: #0E2740;
-    --panel: #163A5C;
-    --panel-border: #2C5580;
-    --ink: #EAF1F8;
-    --ink-dim: #9FB6CC;
-    --gold: #D9A93B;
-    --gold-dim: #B98F2E;
-    --red: #C1453A;
-    --green: #4A9B6E;
-    --blue: #5B9BD5;
-    --purple: #A47FDB;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    font-feature-settings: "tnum" 1;
-    line-height: 1.5;
-  }
-  header {
-    padding: 28px 24px 18px;
-    border-bottom: 1px solid var(--panel-border);
-  }
-  header h1 {
-    font-family: 'Space Grotesk', 'Inter', sans-serif;
-    font-size: 26px;
-    margin: 0 0 4px;
-    letter-spacing: -0.02em;
-  }
-  header h1 span { color: var(--gold); }
-  header p { margin: 0; color: var(--ink-dim); font-size: 14px; }
-
-  nav.tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 14px 24px;
-    border-bottom: 1px solid var(--panel-border);
-    position: sticky;
-    top: 0;
-    background: var(--bg);
-    z-index: 10;
-  }
-  nav.tabs button {
-    background: transparent;
-    border: 1px solid var(--panel-border);
-    color: var(--ink-dim);
-    padding: 8px 14px;
-    border-radius: 6px;
-    font-size: 13.5px;
-    cursor: pointer;
-    font-family: inherit;
-    transition: background .15s, color .15s, border-color .15s;
-  }
-  nav.tabs button:hover { border-color: var(--gold-dim); color: var(--ink); }
-  nav.tabs button.active { background: var(--gold); border-color: var(--gold); color: #17293D; font-weight: 600; }
-
-  main { max-width: 980px; margin: 0 auto; padding: 20px 24px 60px; }
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
-
-  .card {
-    background: var(--panel);
-    border: 1px solid var(--panel-border);
-    border-radius: 8px;
-    padding: 18px 20px;
-    margin-bottom: 16px;
-  }
-  .card h2 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 15px;
-    margin: 0 0 14px;
-    color: var(--gold);
-    font-weight: 600;
-  }
-  .row { display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: flex-end; margin-bottom: 12px; }
-  .field { display: flex; flex-direction: column; gap: 5px; min-width: 120px; }
-  .field label { font-size: 12.5px; color: var(--ink-dim); }
-  .field input[type=number], .field input[type=text], .field select {
-    background: #0E2740;
-    border: 1px solid var(--panel-border);
-    color: var(--ink);
-    padding: 7px 9px;
-    border-radius: 5px;
-    font-size: 13.5px;
-    font-family: inherit;
-    width: 100%;
-  }
-  .field input:focus, .field select:focus { outline: none; border-color: var(--gold); }
-
-  .radio-group { display: flex; flex-wrap: wrap; gap: 4px; }
-  .radio-group label {
-    display: flex; align-items: center; gap: 5px;
-    background: #0E2740; border: 1px solid var(--panel-border);
-    padding: 6px 10px; border-radius: 5px; font-size: 13px; cursor: pointer;
-  }
-  .radio-group input { accent-color: var(--gold); }
-  .radio-group label.checked { border-color: var(--gold); }
-
-  .check-group { display: flex; flex-wrap: wrap; gap: 4px; }
-  .check-group label {
-    display: flex; align-items: center; gap: 5px;
-    background: #0E2740; border: 1px solid var(--panel-border);
-    padding: 6px 10px; border-radius: 5px; font-size: 13px; cursor: pointer;
-  }
-  .check-group input { accent-color: var(--gold); }
-
-  button.btn {
-    background: var(--gold); color: #17293D; border: none;
-    padding: 9px 18px; border-radius: 6px; font-weight: 600; font-size: 13.5px;
-    cursor: pointer; font-family: inherit;
-  }
-  button.btn:hover { background: #E5B84F; }
-  button.btn.secondary {
-    background: transparent; color: var(--ink-dim); border: 1px solid var(--panel-border);
-    font-weight: 500;
-  }
-  button.btn.secondary:hover { border-color: var(--red); color: var(--red); }
-
-  .note {
-    font-size: 12px; color: var(--ink-dim); margin-top: 10px; line-height: 1.5;
-  }
-  .result-banner {
-    background: #0E2740; border-left: 3px solid var(--gold);
-    padding: 10px 14px; border-radius: 4px; font-size: 13.5px; margin-top: 10px;
-    color: var(--ink);
-  }
-  .effectif { color: var(--green); font-weight: 600; font-size: 13.5px; }
-
-  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
-  th, td { padding: 7px 8px; text-align: center; border-bottom: 1px solid var(--panel-border); }
-  th { color: var(--gold); font-weight: 600; font-size: 12px; }
-  tbody tr:hover { background: rgba(217,169,59,0.06); }
-
-  canvas { width: 100%; height: 220px; display: block; }
-
-  .list-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; margin-bottom: 10px; }
-  .search-box { position: relative; }
-  .search-results {
-    position: absolute; top: 100%; left: 0; right: 0; z-index: 20;
-    background: #0E2740; border: 1px solid var(--panel-border); border-radius: 5px;
-    max-height: 220px; overflow-y: auto; margin-top: 2px;
-  }
-  .search-results div { padding: 7px 10px; font-size: 13px; cursor: pointer; border-bottom: 1px solid var(--panel-border); }
-  .search-results div:hover { background: rgba(217,169,59,0.15); }
-  .search-status { font-size: 12px; color: var(--ink-dim); margin-top: 4px; }
-
-  .warn { color: var(--red); font-size: 13px; margin-top: 8px; }
-  footer { text-align: center; color: var(--ink-dim); font-size: 11.5px; padding: 20px; }
-</style>
-</head>
-<body>
-
-<header>
-  <h1>OPTCG <span>Odds</span></h1>
-  <p>Calculateur de probabilités de pioche — One Piece Card Game. Rien n'est envoyé nulle part, tout tourne dans ton navigateur.</p>
-</header>
-
-<nav class="tabs" id="tabsNav">
-  <button data-tab="standard" class="active">Standard</button>
-  <button data-tab="vie">Vie du Leader</button>
-  <button data-tab="don">Coût DON!!</button>
-  <button data-tab="effets">Effets supplémentaires</button>
-  <button data-tab="combo">Combinaisons</button>
-</nav>
-
-<main>
-
-  <!-- ============================= TAB 1 : STANDARD ============================= -->
-  <section class="tab-panel active" id="tab-standard">
-    <div class="card">
-      <h2>Paramètres</h2>
-      <div class="row">
-        <div class="field"><label>Taille du deck</label><input type="number" id="std-deck" value="50" min="1"></div>
-        <div class="field"><label>Main de départ</label><input type="number" id="std-hand" value="5" min="0"></div>
-      </div>
-      <div class="row">
-        <div class="field" style="flex:1; min-width:260px;">
-          <label>Cartes vues (séparées par des virgules)</label>
-          <input type="text" id="std-points" value="5,6,7,10,15,20">
-        </div>
-      </div>
-      <div class="row">
-        <div class="field">
-          <label>Copies dans le deck à comparer</label>
-          <div class="check-group" id="std-copies">
-            <label><input type="checkbox" value="1"> 1x</label>
-            <label><input type="checkbox" value="2" checked> 2x</label>
-            <label><input type="checkbox" value="3" checked> 3x</label>
-            <label><input type="checkbox" value="4" checked> 4x</label>
-          </div>
-        </div>
-      </div>
-      <button class="btn" id="std-calc">Calculer</button>
-    </div>
-    <div class="card">
-      <h2>Résultats</h2>
-      <div id="std-table"></div>
-    </div>
-    <div class="card">
-      <h2>Graphique</h2>
-      <canvas id="std-chart" width="900" height="220"></canvas>
-    </div>
-  </section>
-
-  <!-- ============================= TAB 2 : VIE DU LEADER ============================= -->
-  <section class="tab-panel" id="tab-vie">
-    <div class="card">
-      <h2>Paramètres</h2>
-      <div class="row">
-        <div class="field"><label>Taille du deck</label><input type="number" id="vie-deck" value="50" min="1"></div>
-        <div class="field"><label>Main de départ</label><input type="number" id="vie-hand" value="5" min="0"></div>
-        <div class="field">
-          <label>Vie du Leader</label>
-          <div class="radio-group" id="vie-life">
-            <label><input type="radio" name="vie-life" value="3"> 3</label>
-            <label><input type="radio" name="vie-life" value="4"> 4</label>
-            <label><input type="radio" name="vie-life" value="5" checked> 5</label>
-            <label><input type="radio" name="vie-life" value="6"> 6</label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field">
-          <label>Position</label>
-          <div class="radio-group" id="vie-position">
-            <label><input type="radio" name="vie-position" value="manuel" checked> Saisie manuelle</label>
-            <label><input type="radio" name="vie-position" value="p1"> 1er joueur (pas de pioche T1)</label>
-            <label><input type="radio" name="vie-position" value="p2"> 2e joueur (pioche dès T1)</label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field" style="flex:1; min-width:260px;">
-          <label id="vie-points-label">Cartes vues (séparées par des virgules)</label>
-          <input type="text" id="vie-points" value="5,6,7,10,15,20">
-        </div>
-      </div>
-      <div class="row">
-        <div class="field">
-          <label>Axe X du graphique</label>
-          <div class="radio-group" id="vie-xaxis">
-            <label><input type="radio" name="vie-xaxis" value="cartes" checked> Cartes vues</label>
-            <label><input type="radio" name="vie-xaxis" value="tour"> Tour (si position choisie)</label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field">
-          <label>Copies dans le deck à comparer</label>
-          <div class="check-group" id="vie-copies">
-            <label><input type="checkbox" value="1"> 1x</label>
-            <label><input type="checkbox" value="2" checked> 2x</label>
-            <label><input type="checkbox" value="3" checked> 3x</label>
-            <label><input type="checkbox" value="4" checked> 4x</label>
-          </div>
-        </div>
-      </div>
-      <div class="effectif" id="vie-effectif"></div>
-      <br>
-      <button class="btn" id="vie-calc">Calculer</button>
-    </div>
-    <div class="card"><h2>Résultats</h2><div id="vie-table"></div></div>
-    <div class="card"><h2>Graphique</h2><canvas id="vie-chart" width="900" height="220"></canvas></div>
-  </section>
-
-  <!-- ============================= TAB 3 : DON!! ============================= -->
-  <section class="tab-panel" id="tab-don">
-    <div class="card">
-      <h2>Paramètres</h2>
-      <div class="row">
-        <div class="field"><label>Taille du deck</label><input type="number" id="don-deck" value="50" min="1"></div>
-        <div class="field">
-          <label>Vie du Leader</label>
-          <div class="radio-group" id="don-life">
-            <label><input type="radio" name="don-life" value="3"> 3</label>
-            <label><input type="radio" name="don-life" value="4"> 4</label>
-            <label><input type="radio" name="don-life" value="5" checked> 5</label>
-            <label><input type="radio" name="don-life" value="6"> 6</label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field">
-          <label>Position</label>
-          <div class="radio-group" id="don-position">
-            <label><input type="radio" name="don-position" value="p1" checked> 1er joueur (pas de pioche T1)</label>
-            <label><input type="radio" name="don-position" value="p2"> 2e joueur (pioche dès T1)</label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field">
-          <label>Copies de la carte dans le deck</label>
-          <div class="radio-group" id="don-copies">
-            <label><input type="radio" name="don-copies" value="1"> 1x</label>
-            <label><input type="radio" name="don-copies" value="2"> 2x</label>
-            <label><input type="radio" name="don-copies" value="3"> 3x</label>
-            <label><input type="radio" name="don-copies" value="4" checked> 4x</label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field"><label>Coût en DON!! de la carte</label><input type="number" id="don-cost" value="4" min="0" max="10"></div>
-        <div class="field">
-          <label><input type="checkbox" id="don-reserve-check"> Garder du DON!! en réserve</label>
-          <input type="number" id="don-reserve" value="1" min="0" max="9">
-        </div>
-      </div>
-      <div class="search-box" style="max-width:420px;">
-        <label style="font-size:12.5px; color:var(--ink-dim);">Rechercher une carte pour préremplir le coût</label>
-        <input type="text" id="don-search" placeholder="ex : Roronoa Zoro">
-        <div class="search-results" id="don-search-results" style="display:none;"></div>
-        <div class="search-status" id="don-search-status"></div>
-      </div>
-      <br>
-      <button class="btn" id="don-calc">Calculer</button>
-      <div class="result-banner" id="don-result"></div>
-      <div class="note">Règle officielle : 1er joueur = 1 DON!!/0 carte au tour 1 puis +2 DON!!/+1 carte par tour ; 2e joueur = +2 DON!!/+1 carte dès le tour 1. Plafond à 10 DON!! au total. Ce calcul ignore volontairement le jeu adverse — c'est le tour "idéal dans l'absolu", à ajuster selon la partie réelle.</div>
-    </div>
-    <div class="card"><h2>Détail tour par tour</h2><div id="don-table"></div></div>
-    <div class="card">
-      <h2>DON!! disponible par tour</h2>
-      <canvas id="don-chart-1" width="900" height="180"></canvas>
-    </div>
-    <div class="card">
-      <h2>Probabilité d'avoir la carte en main</h2>
-      <canvas id="don-chart-2" width="900" height="180"></canvas>
-    </div>
-  </section>
-
-  <!-- ============================= TAB 4 : EFFETS ============================= -->
-  <section class="tab-panel" id="tab-effets">
-    <div class="card">
-      <h2>Paramètres du deck</h2>
-      <div class="row">
-        <div class="field"><label>Taille du deck</label><input type="number" id="eff-deck" value="50" min="1"></div>
-        <div class="field">
-          <label>Vie du Leader</label>
-          <div class="radio-group" id="eff-life">
-            <label><input type="radio" name="eff-life" value="3"> 3</label>
-            <label><input type="radio" name="eff-life" value="4"> 4</label>
-            <label><input type="radio" name="eff-life" value="5" checked> 5</label>
-            <label><input type="radio" name="eff-life" value="6"> 6</label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field"><label>Main de départ</label><input type="number" id="eff-hand" value="5" min="0"></div>
-        <div class="field">
-          <label>Position</label>
-          <div class="radio-group" id="eff-position">
-            <label><input type="radio" name="eff-position" value="manuel" checked> Saisie manuelle</label>
-            <label><input type="radio" name="eff-position" value="p1"> 1er joueur</label>
-            <label><input type="radio" name="eff-position" value="p2"> 2e joueur</label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field" style="flex:1; min-width:260px;">
-          <label id="eff-points-label">Cartes vues (séparées par des virgules)</label>
-          <input type="text" id="eff-points" value="5,6,7,10,15,20">
-        </div>
-      </div>
-      <div class="row">
-        <div class="field">
-          <label>Axe X du graphique</label>
-          <div class="radio-group" id="eff-xaxis">
-            <label><input type="radio" name="eff-xaxis" value="cartes" checked> Cartes vues</label>
-            <label><input type="radio" name="eff-xaxis" value="tour"> Tour (si position choisie)</label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field">
-          <label>Copies dans le deck à comparer</label>
-          <div class="check-group" id="eff-copies">
-            <label><input type="checkbox" value="1"> 1x</label>
-            <label><input type="checkbox" value="2" checked> 2x</label>
-            <label><input type="checkbox" value="3" checked> 3x</label>
-            <label><input type="checkbox" value="4" checked> 4x</label>
-          </div>
-        </div>
-      </div>
-      <div class="effectif" id="eff-effectif"></div>
-    </div>
-
-    <div class="card">
-      <h2>Effets supplémentaires (recherche / pioche-défausse) — cumulables</h2>
-      <div class="list-form">
-        <div class="field">
-          <label>Type</label>
-          <select id="eff-type">
-            <option value="recherche">Recherche (regarder les X premières cartes)</option>
-            <option value="loot">Pioche X / Défausse X</option>
-          </select>
-        </div>
-        <div class="field"><label>Valeur X</label><input type="number" id="eff-valeur" value="3" min="1" max="10" style="width:70px;"></div>
-        <div class="field"><label>Utilisations</label><input type="number" id="eff-uses" value="1" min="1" max="10" style="width:70px;"></div>
-        <button class="btn" id="eff-add">Ajouter</button>
-      </div>
-      <table id="eff-list-table">
-        <thead><tr><th>Type</th><th>Valeur X</th><th>Utilisations</th><th>Cartes ajoutées</th><th></th></tr></thead>
-        <tbody></tbody>
-      </table>
-      <div class="note" id="eff-total">Total cartes ajoutées par les effets : 0</div>
-      <br>
-      <button class="btn" id="eff-calc">Calculer</button>
-    </div>
-    <div class="card"><h2>Résultats</h2><div id="eff-table"></div></div>
-    <div class="card"><h2>Graphique</h2><canvas id="eff-chart" width="900" height="220"></canvas></div>
-  </section>
-
-  <!-- ============================= TAB 5 : COMBINAISONS ============================= -->
-  <section class="tab-panel" id="tab-combo">
-    <div class="card">
-      <h2>Paramètres du deck</h2>
-      <div class="row">
-        <div class="field"><label>Taille du deck</label><input type="number" id="combo-deck" value="50" min="1"></div>
-        <div class="field">
-          <label>Vie du Leader</label>
-          <div class="radio-group" id="combo-life">
-            <label><input type="radio" name="combo-life" value="3"> 3</label>
-            <label><input type="radio" name="combo-life" value="4"> 4</label>
-            <label><input type="radio" name="combo-life" value="5" checked> 5</label>
-            <label><input type="radio" name="combo-life" value="6"> 6</label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field"><label>Main de départ</label><input type="number" id="combo-hand" value="5" min="0"></div>
-        <div class="field">
-          <label>Position</label>
-          <div class="radio-group" id="combo-position">
-            <label><input type="radio" name="combo-position" value="manuel" checked> Saisie manuelle</label>
-            <label><input type="radio" name="combo-position" value="p1"> 1er joueur</label>
-            <label><input type="radio" name="combo-position" value="p2"> 2e joueur</label>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="field" style="flex:1; min-width:260px;">
-          <label id="combo-points-label">Cartes vues (séparées par des virgules)</label>
-          <input type="text" id="combo-points" value="5,6,7,10,15,20">
-        </div>
-      </div>
-      <div class="row">
-        <div class="field">
-          <label>Axe X du graphique</label>
-          <div class="radio-group" id="combo-xaxis">
-            <label><input type="radio" name="combo-xaxis" value="cartes" checked> Cartes vues</label>
-            <label><input type="radio" name="combo-xaxis" value="tour"> Tour (si position choisie)</label>
-          </div>
-        </div>
-      </div>
-      <div class="effectif" id="combo-effectif"></div>
-    </div>
-
-    <div class="card">
-      <h2>Cartes de la combinaison (jusqu'à 5)</h2>
-      <div class="list-form">
-        <div class="field search-box" style="min-width:220px;">
-          <label>Nom (optionnel)</label>
-          <input type="text" id="combo-name" placeholder="ex : Roronoa Zoro">
-          <div class="search-results" id="combo-search-results" style="display:none;"></div>
-          <div class="search-status" id="combo-search-status"></div>
-        </div>
-        <div class="field"><label>Copies dans le deck</label><input type="number" id="combo-copies" value="4" min="1" max="4" style="width:70px;"></div>
-        <div class="field"><label>Minimum requis</label><input type="number" id="combo-min" value="1" min="1" max="4" style="width:70px;"></div>
-        <button class="btn" id="combo-add">Ajouter la carte</button>
-      </div>
-      <table id="combo-list-table">
-        <thead><tr><th>Nom</th><th>Copies dans le deck</th><th>Minimum requis</th><th></th></tr></thead>
-        <tbody></tbody>
-      </table>
-      <div class="note" id="combo-summary"></div>
-      <br>
-      <button class="btn" id="combo-calc">Calculer</button>
-    </div>
-    <div class="card"><h2>Résultats</h2><div id="combo-table"></div></div>
-    <div class="card"><h2>Graphique</h2><canvas id="combo-chart" width="900" height="220"></canvas></div>
-  </section>
-
-</main>
-
-<footer>
-  OPTCG Odds — outil non-officiel, fait pour les joueurs. One Piece Card Game est une marque de Bandai / Shueisha.
-  Données de cartes (recherche) via l'API publique optcgapi.com.
-</footer>
-
-<script>
 /* =====================================================================
    MOTEUR DE CALCUL — loi hypergeometrique (calcul en espace log pour
    eviter les overflows sur les grands deck).
@@ -768,14 +267,34 @@ function calcDon() {
    TAB 4 : EFFETS SUPPLEMENTAIRES
    ===================================================================== */
 let effEffects = [];
+/* Cellule « supprimer la ligne », partagee par les tableaux des onglets
+   Effets et Combinaisons. La classe porte le style : aucun attribut style
+   dans le balisage, ce qui permet une CSP sans 'unsafe-inline'. */
+function makeRemoveCell(idx) {
+  const td = document.createElement("td");
+  const btn = document.createElement("button");
+  btn.className = "btn secondary btn-xs";
+  btn.dataset.idx = idx;
+  btn.textContent = "✕";
+  btn.setAttribute("aria-label", "Supprimer cette ligne");
+  td.appendChild(btn);
+  return td;
+}
+
 function refreshEffectsTable() {
   const tbody = document.querySelector("#eff-list-table tbody");
   tbody.innerHTML = "";
   effEffects.forEach((e, i) => {
     const cartes = e.valeur * e.uses;
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${e.typeLabel}</td><td>${e.valeur}</td><td>${e.uses}</td><td>${cartes}</td>
-      <td><button class="btn secondary" data-idx="${i}" style="padding:3px 8px;font-size:11px;">✕</button></td>`;
+    // textContent, jamais innerHTML : les libelles passent par le DOM sans
+    // etre reinterpretes comme du HTML.
+    [e.typeLabel, e.valeur, e.uses, cartes].forEach(v => {
+      const td = document.createElement("td");
+      td.textContent = v;
+      tr.appendChild(td);
+    });
+    tr.appendChild(makeRemoveCell(i));
     tbody.appendChild(tr);
   });
   tbody.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
@@ -842,8 +361,14 @@ function refreshComboTable() {
   tbody.innerHTML = "";
   comboCards.forEach((c, i) => {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${c.nom}</td><td>${c.copies}</td><td>${c.minimum}</td>
-      <td><button class="btn secondary" data-idx="${i}" style="padding:3px 8px;font-size:11px;">✕</button></td>`;
+    // c.nom est saisi par l'utilisateur ou vient de l'API optcgapi.com :
+    // ces deux sources sont hors de notre controle, donc jamais d'innerHTML.
+    [c.nom, c.copies, c.minimum].forEach(v => {
+      const td = document.createElement("td");
+      td.textContent = v;
+      tr.appendChild(td);
+    });
+    tr.appendChild(makeRemoveCell(i));
     tbody.appendChild(tr);
   });
   tbody.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
@@ -1026,6 +551,3 @@ document.addEventListener("DOMContentLoaded", () => {
   refreshComboTable();
   calcCombo();
 });
-</script>
-</body>
-</html>
