@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://opdeck.hokhori.be/sitemap.xml

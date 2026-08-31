@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="OPTCG Odds">
+  <rect width="64" height="64" rx="12" fill="#0E2740"/>
+  <rect x="12" y="10" width="26" height="38" rx="4" fill="#163A5C" stroke="#2C5580" stroke-width="2"
+        transform="rotate(-10 25 29)"/>
+  <rect x="26" y="14" width="26" height="38" rx="4" fill="#163A5C" stroke="#D9A93B" stroke-width="2"
+        transform="rotate(8 39 33)"/>
+  <text x="39" y="42" font-family="Georgia, serif" font-size="22" font-weight="bold"
+        fill="#D9A93B" text-anchor="middle" transform="rotate(8 39 33)">%</text>
+</svg>
