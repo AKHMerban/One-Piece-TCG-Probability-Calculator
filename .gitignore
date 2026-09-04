@@ -1,0 +1,4 @@
+# Base de cartes : produite par tools/scrape-cards.py, deployee a part.
+# Elle n'a pas sa place dans l'historique git — 1,8 Mo regeneres a chaque
+# scraping, et les visuels pesent plusieurs centaines de Mo.
+site/data/

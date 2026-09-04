@@ -64,8 +64,8 @@ et le dossier `site/` se sert tel quel par n'importe quel serveur web.
 - **Comparaison 1x / 2x / 3x / 4x** sur un même graphique — l'argument chiffré
   pour trancher un choix de deckbuilding
 - **Axe X commutable** : nombre de cartes vues, ou numéro de tour
-- **Recherche de carte par nom** (version web) via l'API publique
-  [optcgapi.com](https://optcgapi.com), pour préremplir le coût en DON!!
+- **Base de cartes intégrée** (version web) : recherche multilingue, filtres et
+  fiches complètes, servies par le site lui-même — aucun appel à un tiers
 - **Interface en français**, terminologie officielle du jeu (DON!!, Leader, vie)
 
 ## Démarrage rapide
@@ -136,6 +136,18 @@ Jusqu'à 5 cartes, chacune avec son nombre de copies dans le deck et un
 **minimum requis**. Permet de répondre à : *« quelle est ma probabilité d'avoir
 2 copies de ce personnage **et** 1 copie de cet Event avant le tour 3 ? »*
 
+### 6. Cartes — la base complète du jeu
+
+Recherche et filtres sur l'intégralité des cartes : nom, numéro, type, texte
+d'effet, couleur, catégorie, coût, attribut, extension. Chaque fiche affiche le
+visuel et toutes les métadonnées — coût ou vie, puissance, contre, couleur,
+attribut, types, effet, extension.
+
+La recherche porte sur **les deux langues à la fois** : chercher « Blocker »
+trouve aussi les cartes dont le texte français dit « Bloqueur ». Les onglets
+*Coût DON!!* et *Combinaisons* puisent dans cette même base pour préremplir
+leurs champs.
+
 ## Fondement mathématique
 
 Tous les onglets s'appuient sur un moteur commun.
@@ -180,13 +192,17 @@ $$P = \sum_{\substack{k_i \geq r_i}} \frac{\left(\prod_i \binom{K_i}{k_i}\right)
 ```
 .
 ├── site/                        ← le site web, servi tel quel (aucun build)
-│   ├── index.html               ← l'application, 5 onglets
+│   ├── index.html               ← l'application, 6 onglets
 │   ├── 404.html
 │   ├── robots.txt · sitemap.xml · site.webmanifest
 │   └── assets/
 │       ├── styles.css           ← thème + responsive + impression
 │       ├── app.js               ← moteur de calcul et rendu des graphiques
+│       ├── cards.js             ← base de cartes : recherche, filtres, fiches
 │       └── favicon.svg
+├── tools/
+│   ├── scrape-cards.py          ← construit la base depuis le site officiel
+│   └── fetch-card-images.py     ← télécharge et convertit les visuels en WebP
 ├── opctg_probabilite.py         ← version bureau de référence (5 onglets)
 ├── opctg_probabilite copie.py   ← copie de travail, règle DON!! antérieure
 ├── opctg_probabiliteV.py        ← prototype : Standard + Vie du Leader
@@ -197,6 +213,32 @@ $$P = \sum_{\substack{k_i \geq r_i}} \frac{\left(\prod_i \binom{K_i}{k_i}\right)
 Les fichiers `PROB.py` et `opctg_probabiliteV.py` sont conservés comme **étapes
 historiques** du développement. Pour utiliser l'application, se référer à
 `opctg_probabilite.py` ou à la version web.
+
+## La base de cartes
+
+Les données proviennent du **site officiel du jeu**, reconstruites par les deux
+scripts de `tools/`.
+
+```bash
+# 1. Métadonnées : une requête par extension, espacées d'une seconde
+python3 tools/scrape-cards.py --out site/data
+
+# 2. Visuels : PNG officiels convertis en WebP (~26 % de la taille)
+python3 tools/fetch-card-images.py --manifest site/data/images.txt --out site/data/cards
+```
+
+Deux catalogues sont fusionnés : l'anglais sert de base parce qu'il est complet
+(60 extensions), le français est superposé carte par carte là où il existe
+(37 extensions). Une carte récente s'affiche donc en anglais, une carte plus
+ancienne en français — l'interface le signale.
+
+Les **parallèles et alternatives** (`OP01-001_p1`, `_r1`…) sont repliées sur
+leur carte de base : elles partagent toutes les données de jeu et ne diffèrent
+que par l'artwork. Leurs identifiants restent listés dans le champ `variants`.
+
+Le dossier `site/data/` n'est **pas versionné** : c'est de la donnée dérivée,
+régénérable, et les visuels pèsent plusieurs centaines de mégaoctets. Le site
+la charge à la demande, à la première ouverture de l'onglet *Cartes*.
 
 ## Hypothèses et limites
 
@@ -220,6 +262,7 @@ historiques** du développement. Pour utiliser l'application, se référer à
 - [x] Combinaisons de cartes avec minimum requis
 - [x] Analyse par coût en DON!! et tour idéal
 - [x] Version web autonome, sans dépendance
+- [x] Base de cartes complète, recherche et filtres
 - [ ] Import d'une decklist complète et analyse globale
 - [ ] Modélisation fine du mulligan
 - [ ] Traduction anglaise de l'interface
@@ -243,8 +286,10 @@ utiles : préciser les paramètres saisis et le résultat attendu.
 Aucune licence n'est actuellement déclarée pour ce dépôt. En l'absence de
 licence, le code reste sous le droit d'auteur exclusif de son auteur.
 
-Les données de cartes de la recherche par nom proviennent de l'API publique
-[optcgapi.com](https://optcgapi.com).
+Les données et visuels des cartes proviennent du site officiel
+[onepiece-cardgame.com](https://en.onepiece-cardgame.com/cardlist/) et restent
+la propriété de leurs ayants droit. Ils sont reproduits ici à des fins
+d'information pour les joueurs, sans usage commercial.
 
 *One Piece Card Game* est une marque de Bandai. Ce projet est un outil
 communautaire non officiel, sans aucune affiliation avec Bandai ou Eiichiro Oda.

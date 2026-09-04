@@ -361,8 +361,8 @@ function refreshComboTable() {
   tbody.innerHTML = "";
   comboCards.forEach((c, i) => {
     const tr = document.createElement("tr");
-    // c.nom est saisi par l'utilisateur ou vient de l'API optcgapi.com :
-    // ces deux sources sont hors de notre controle, donc jamais d'innerHTML.
+    // c.nom est saisi par l'utilisateur ou repris de la base de cartes,
+    // elle-meme construite par scraping : jamais d'innerHTML.
     [c.nom, c.copies, c.minimum].forEach(v => {
       const td = document.createElement("td");
       td.textContent = v;
@@ -433,66 +433,14 @@ function calcCombo() {
 }
 
 /* =====================================================================
-   RECHERCHE DE CARTE (API optcgapi.com, avec repli gracieux)
-   ===================================================================== */
-let cardDatabase = null;
-let cardDatabaseError = null;
-async function loadCardDatabase() {
-  if (cardDatabase || cardDatabaseError) return;
-  try {
-    const res = await fetch("https://optcgapi.com/api/allSetCards/");
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    cardDatabase = await res.json();
-  } catch (err) {
-    cardDatabaseError = err;
-    console.warn("Recherche de carte indisponible :", err);
-  }
-}
-function wireCardSearch(inputId, resultsId, statusId, onPick) {
-  const input = document.getElementById(inputId);
-  const resultsEl = document.getElementById(resultsId);
-  const statusEl = document.getElementById(statusId);
-  let debounceTimer = null;
+   RECHERCHE DE CARTE
 
-  input.addEventListener("focus", () => loadCardDatabase());
-  input.addEventListener("input", () => {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(async () => {
-      const q = input.value.trim().toLowerCase();
-      if (q.length < 2) { resultsEl.style.display = "none"; return; }
-      if (!cardDatabase && !cardDatabaseError) {
-        statusEl.textContent = "Chargement de la base de cartes...";
-        await loadCardDatabase();
-      }
-      if (cardDatabaseError) {
-        statusEl.textContent = "Recherche indisponible (pas de connexion ou API hors-service) — utilise la saisie manuelle.";
-        resultsEl.style.display = "none";
-        return;
-      }
-      statusEl.textContent = "";
-      const matches = cardDatabase
-        .filter(c => c.card_name && c.card_name.toLowerCase().includes(q) && c.card_type !== "Leader")
-        .slice(0, 15);
-      if (!matches.length) { resultsEl.style.display = "none"; return; }
-      resultsEl.innerHTML = "";
-      matches.forEach(c => {
-        const div = document.createElement("div");
-        const costTxt = c.card_cost !== null && c.card_cost !== undefined ? ` — Coût ${c.card_cost}` : "";
-        div.textContent = `${c.card_name} (${c.card_set_id})${costTxt}`;
-        div.addEventListener("click", () => {
-          onPick(c);
-          resultsEl.style.display = "none";
-          input.value = c.card_name;
-        });
-        resultsEl.appendChild(div);
-      });
-      resultsEl.style.display = "block";
-    }, 250);
-  });
-  document.addEventListener("click", (e) => {
-    if (!resultsEl.contains(e.target) && e.target !== input) resultsEl.style.display = "none";
-  });
-}
+   Implementee dans cards.js (wireCardPicker), sur la base de cartes
+   locale /data/cards.json. Avant, ces deux champs interrogeaient
+   optcgapi.com et telechargeaient 2,4 Mo a chaque frappe : une
+   dependance tierce a l'execution, pour une donnee qu'on peut servir
+   nous-memes.
+   ===================================================================== */
 
 /* =====================================================================
    INITIALISATION
@@ -533,13 +481,14 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll('#combo-life input, #combo-xaxis input').forEach(el => el.addEventListener("change", calcCombo));
 
   // Recherche de carte
-  wireCardSearch("don-search", "don-search-results", "don-search-status", (card) => {
-    if (card.card_cost !== null && card.card_cost !== undefined) {
-      document.getElementById("don-cost").value = card.card_cost;
+  wireCardPicker("don-search", "don-search-results", "don-search-status", (card) => {
+    if (card.cost !== null && card.cost !== undefined) {
+      document.getElementById("don-cost").value = card.cost;
+      calcDon();
     }
   });
-  wireCardSearch("combo-name", "combo-search-results", "combo-search-status", (card) => {
-    // nom deja rempli par le clic ; rien d'autre a prerempler (copies/minimum restent au choix du joueur)
+  wireCardPicker("combo-name", "combo-search-results", "combo-search-status", () => {
+    // nom deja rempli par le clic ; copies et minimum restent au choix du joueur
   });
 
   // Calcul initial de tous les onglets
